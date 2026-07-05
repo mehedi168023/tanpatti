@@ -616,29 +616,22 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     ),
                   ),
                   child: Row(
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!isFolded) ...[
-                      Image.asset('assets/images/poker_chip.png', width: 11, height: 11),
-                      const SizedBox(width: 3),
-                    ],
-                    Text(
-                      betAmount,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!isFolded) ...[
+                        Image.asset('assets/images/poker_chip.png', width: 11, height: 11),
+                        const SizedBox(width: 3),
+                      ],
+                      Text(
+                        betAmount,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
