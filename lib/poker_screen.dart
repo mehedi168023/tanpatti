@@ -616,180 +616,34 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     ),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (!isFolded) ...[
-                        Image.asset('assets/images/poker_chip.png', width: 11, height: 11),
-                        const SizedBox(width: 3),
-                        Text(
-                          chips,
-                          style: const TextStyle(
-                            color: Color(0xFFBDBDBD),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            shadows: [Shadow(color: Colors.black, blurRadius: 4)],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-
-              // 2. Avatar Stack (in the center)
-              Positioned(
-                top: 32,
-                child: Stack(
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.none,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Opacity(
-                      opacity: isFolded ? 0.5 : 1.0,
-                      child: _buildAvatar(
-                        imageAsset: avatarAsset,
-                        isActive: isActive,
-                        size: 58,
-                        timerVal: circularTimerVal,
-                        isCircularTimer: isCircularTimer,
-                        activeColor: Colors.yellowAccent,
+                    if (!isFolded) ...[
+                      Image.asset('assets/images/poker_chip.png', width: 11, height: 11),
+                      const SizedBox(width: 3),
+                    ],
+                    Text(
+                      betAmount,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-
-                    // Gift Button Overlay
-                    Positioned(
-                      left: isLeftPlayer ? -10 : null,
-                      right: !isLeftPlayer ? -10 : null,
-                      bottom: -2,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 2)],
-                        ),
-                        child: const Icon(Icons.card_giftcard, color: Colors.grey, size: 11),
-                      ),
-                    ),
-
-                    // D dealer button
-                    if (showDealerBtn)
-                      Positioned(
-                        left: -14,
-                        top: 12,
-                        child: Container(
-                          width: 18,
-                          height: 18,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black87, width: 1),
-                            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 2)],
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            'D',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    // Silver Stars
-                    if (showStars)
-                      Positioned(
-                        right: -10,
-                        top: -12,
-                        child: Row(
-                          children: const [
-                            Icon(Icons.star, color: Colors.white70, size: 9),
-                            Icon(Icons.star, color: Colors.white70, size: 11),
-                            Icon(Icons.star, color: Colors.white70, size: 9),
-                          ],
-                        ),
-                      ),
-
-                    // Gold Crown
-                    if (showCrown)
-                      Positioned(
-                        right: -10,
-                        top: -10,
-                        child: Transform.rotate(
-                          angle: 0.25,
-                          child: const Icon(Icons.emoji_events, color: Color(0xFFFFD700), size: 16),
-                        ),
-                      ),
-
-                    // Action Text Bubble (Fold/Call/Raise/Check/Big Blind)
-                    if (actionText.isNotEmpty)
-                      Positioned(
-                        bottom: -4,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isFolded ? const Color(0xFFC62828) : Colors.black.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isFolded ? Colors.white70 : Colors.white24,
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            actionText.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
-
-              // 3. Player Hand Cards (positioned to the side of the avatar on the table felt)
-              if (!isFolded)
-                Positioned(
-                  left: isLeftPlayer ? 104 : null,
-                  right: !isLeftPlayer ? 104 : null,
-                  top: 50,
-                  child: _buildOpponentCards(),
-                ),
-
-              // 4. Bet Chips amount (at the bottom, centered under the avatar)
-              if (betAmount.isNotEmpty)
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset('assets/images/poker_chip.png', width: 13, height: 13),
-                        const SizedBox(width: 4),
-                        Text(
-                          betAmount,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
+            ),
+        ],
+      ),
     );
   }
 
