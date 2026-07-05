@@ -801,7 +801,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                 setState(() {
                   _raiseValue = _maxRaise;
                 });
-                _playSound();
+                _playGameSound('click1.mp3');
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -831,7 +831,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                 setState(() {
                   _raiseValue = math.min(_maxRaise, _raiseValue + 1500);
                 });
-                _playSound();
+                _playGameSound('click1.mp3');
               },
               child: Container(
                 width: 28,
@@ -859,7 +859,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                 setState(() {
                   _raiseValue = math.max(_minRaise, _raiseValue - 1500);
                 });
-                _playSound();
+                _playGameSound('click1.mp3');
               },
               child: Container(
                 width: 28,
@@ -913,7 +913,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
         setState(() {
           _raiseValue = val;
         });
-        _playSound();
+        _playGameSound('click1.mp3');
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
