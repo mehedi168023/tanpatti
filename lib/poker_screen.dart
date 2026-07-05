@@ -420,6 +420,8 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
     required double x, // -1.0 to 1.0 relative X
     required double y, // -1.0 to 1.0 relative Y
     required bool isActive,
+    required double tableW,
+    required double tableH,
     bool isInvite = false,
     bool isCircularTimer = false,
     double circularTimerVal = 1.0,
@@ -427,91 +429,196 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
     bool showStars = false,
     bool showCrown = false,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final w = constraints.maxWidth;
-        final h = constraints.maxHeight;
+    // Position coordinates mapped to landscape screen center
+    final left = (tableW / 2) * (1 + x);
+    final top = (tableH / 2) * (1 + y);
 
-        // Position coordinates mapped to landscape screen center
-        final left = (w / 2) * (1 + x);
-        final top = (h / 2) * (1 + y);
+    if (isInvite) {
+      return Positioned(
+        left: left - 29,
+        top: top - 45,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Invite',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black38,
+                border: Border.all(color: Colors.white24, width: 1.5),
+              ),
+              child: const Center(
+                child: Icon(Icons.person, color: Colors.white30, size: 28),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(0, -10),
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF4CAF50),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.white, size: 16),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
-        if (isInvite) {
-          return Positioned(
-            left: left - 29,
-            top: top - 45,
+    final isFolded = actionText == 'Fold';
+    final isLeftPlayer = x < 0;
+
+    return Positioned(
+      left: left - 80,
+      top: top - 65,
+      width: 160,
+      height: 130,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
+        children: [
+          // 1. Name & Chips Column (at the top)
+          Positioned(
+            top: 0,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Invite',
-                  style: TextStyle(
-                    color: Colors.white70,
+                Text(
+                  name,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black38,
-                    border: Border.all(color: Colors.white24, width: 1.5),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.person, color: Colors.white30, size: 28),
-                  ),
-                ),
-                Transform.translate(
-                  offset: const Offset(0, -10),
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF4CAF50),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 16),
+                Text(
+                  chips,
+                  style: const TextStyle(
+                    color: Colors.yellowAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
-          );
-        }
+          ),
 
-        final isFolded = actionText == 'Fold';
-        final isLeftPlayer = x < 0;
+          // 2. Avatar with border glow timer
+          Positioned(
+            top: 30,
+            child: _buildAvatar(
+              imageAsset: avatarAsset,
+              isActive: isActive,
+              size: 46,
+              isCircularTimer: isCircularTimer,
+              timerVal: circularTimerVal,
+            ),
+          ),
 
-        return Positioned(
-          left: left - 80,
-          top: top - 65,
-          width: 160,
-          height: 130,
-          child: Stack(
-            alignment: Alignment.topCenter,
-            clipBehavior: Clip.none,
-            children: [
-              // 1. Name & Chips Column (at the top)
-              Positioned(
-                top: 0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+          // 3. Tilted overlapping opponent hand cards (rendered next to avatar)
+          if (!isFolded)
+            Positioned(
+              top: 34,
+              left: isLeftPlayer ? 104 : 12,
+              child: _buildOpponentCards(),
+            ),
+
+          // 4. Gold Crown on Top Left of Avatar
+          if (showCrown)
+            Positioned(
+              top: 14,
+              left: 45,
+              child: Transform.rotate(
+                angle: -0.15,
+                child: const Icon(
+                  Icons.workspace_premium,
+                  color: Color(0xFFFFD700),
+                  size: 16,
+                ),
+              ),
+            ),
+
+          // 5. Silver Stars on Bottom Right of Avatar
+          if (showStars)
+            Positioned(
+              top: 56,
+              left: 98,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.65),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.cyanAccent.withOpacity(0.5), width: 0.8),
+                ),
+                child: const Row(
                   children: [
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        shadows: [Shadow(color: Colors.black, blurRadius: 4)],
-                      ),
+                    Icon(Icons.star, color: Colors.cyanAccent, size: 7),
+                    SizedBox(width: 1),
+                    Icon(Icons.star, color: Colors.cyanAccent, size: 7),
+                  ],
+                ),
+              ),
+            ),
+
+          // 6. Dealer button capsule on left/right of avatar
+          if (showDealerBtn)
+            Positioned(
+              top: 42,
+              left: isLeftPlayer ? 38 : 106,
+              child: Container(
+                width: 16,
+                height: 16,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black45, blurRadius: 2)],
+                ),
+                child: const Center(
+                  child: Text(
+                    'D',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                  ),
+                ),
+              ),
+            ),
+
+          // 7. Bet Chips count relative to the felt table
+          if (betAmount.isNotEmpty)
+            Positioned(
+              top: 86,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isFolded ? const Color(0xFFC62828) : Colors.black.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isFolded ? Colors.redAccent : const Color(0xFF4CAF50),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!isFolded) ...[
                         Image.asset('assets/images/poker_chip.png', width: 11, height: 11),
                         const SizedBox(width: 3),
                         Text(
@@ -1092,9 +1199,13 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
           Center(
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final tableW = constraints.maxWidth;
+                  final tableH = constraints.maxHeight;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
                   // Table Image
                   Positioned(
                     left: 40,
@@ -1259,6 +1370,8 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     x: -0.48,
                     y: -0.45,
                     isActive: false,
+                    tableW: tableW,
+                    tableH: tableH,
                     showStars: true,
                   ),
 
@@ -1278,6 +1391,8 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     x: -0.63,
                     y: 0.16,
                     isActive: _stateIndex == 2,
+                    tableW: tableW,
+                    tableH: tableH,
                     isCircularTimer: true,
                     circularTimerVal: _opponentTimerProgress,
                   ),
@@ -1292,6 +1407,8 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     x: 0.48,
                     y: -0.45,
                     isActive: false,
+                    tableW: tableW,
+                    tableH: tableH,
                     showDealerBtn: true,
                     showCrown: true,
                   ),
@@ -1306,6 +1423,8 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     x: 0.63,
                     y: 0.16,
                     isActive: false,
+                    tableW: tableW,
+                    tableH: tableH,
                     isInvite: true,
                   ),
 
@@ -1432,9 +1551,11 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
+        ),
+      ),
 
           // 11. Top Control Bar (HUD) - Full bleed
           Positioned(
