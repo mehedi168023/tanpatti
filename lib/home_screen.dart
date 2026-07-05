@@ -48,6 +48,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     });
   }
 
+  void _playLobbySound(String filename) {
+    final tempPlayer = AudioPlayer();
+    tempPlayer.play(AssetSource('sounds/$filename')).then((_) {
+      Future.delayed(const Duration(seconds: 4), () => tempPlayer.dispose());
+    }).catchError((e) {
+      debugPrint("Sound playing error: $e");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             const SizedBox(width: 12),
                             // Buy More "+" button
                             GestureDetector(
-                              onTap: _playChipSound,
+                              onTap: () => _playLobbySound('click1.mp3'),
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: const BoxDecoration(
@@ -175,13 +184,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           IconButton(
                             icon: const Icon(Icons.volume_up, color: Colors.white, size: 22),
                             style: IconButton.styleFrom(backgroundColor: Colors.black45),
-                            onPressed: _playChipSound,
+                            onPressed: () => _playLobbySound('click1.mp3'),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.settings, color: Colors.white, size: 22),
                             style: IconButton.styleFrom(backgroundColor: Colors.black45),
-                            onPressed: () {},
+                            onPressed: () => _playLobbySound('click1.mp3'),
                           ),
                         ],
                       ),
@@ -220,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         ),
                         onPressed: () {
-                          _playChipSound();
+                          _playLobbySound('card_shuffle.mp3');
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const PokerScreen(),
@@ -256,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         icon: Icons.public,
                         colors: [const Color(0xFF155E38), const Color(0xFF08331C)],
                         onTap: () {
-                          _playChipSound();
+                          _playLobbySound('click1.mp3');
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const PokerScreen()),
                           );
@@ -267,14 +276,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         subtitle: 'Invite your close friends',
                         icon: Icons.vpn_key,
                         colors: [const Color(0xFF5B1A8F), const Color(0xFF330C54)],
-                        onTap: _playChipSound,
+                        onTap: () => _playLobbySound('click1.mp3'),
                       ),
                       _buildLobbyCard(
                         title: 'TOURNAMENTS',
                         subtitle: 'Compete for mega prizes',
                         icon: Icons.emoji_events,
                         colors: [const Color(0xFF9E1F1F), const Color(0xFF5E0F0F)],
-                        onTap: _playChipSound,
+                        onTap: () => _playLobbySound('click1.mp3'),
                       ),
                     ],
                   ),
