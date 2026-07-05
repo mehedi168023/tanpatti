@@ -21,6 +21,12 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
   // 5: Showdown / Win state! (Extra reward experience)
   int _stateIndex = 1;
 
+  // Dynamic values
+  double _ownChipsVal = 59250;
+  double _potVal = 5250;
+  String _bannerText = '';
+  double _ownBetVal = 0;
+
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   // Raise values
@@ -130,6 +136,12 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
       _card5Opacity = 0.0;
       _ownCardsAlign = const Alignment(0, -3.5);
       _ownCardsOpacity = 0.0;
+
+      // Reset dynamic values
+      _ownChipsVal = 59250;
+      _potVal = 5250;
+      _ownBetVal = 0;
+      _bannerText = '';
     });
   }
 
@@ -157,6 +169,13 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
         });
       }
     });
+  }
+
+  String _formatCurrency(double val) {
+    if (val >= 100000) {
+      return '₹${(val / 100000).toStringAsFixed(2)} L';
+    }
+    return '₹${val.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
 
   void _animateBet() {
@@ -668,12 +687,25 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
             ),
           ),
 
-          // 3. Tilted overlapping opponent hand cards (rendered next to avatar)
+          // 3. Tilted overlapping opponent hand cards (rendered next to avatar, flying from dealer)
           if (!isFolded)
             Positioned(
               top: 34,
               left: isLeftPlayer ? 104 : 12,
-              child: _buildOpponentCards(),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeOutBack,
+                transform: Matrix4.translationValues(
+                  _ownCardsOpacity == 0.0 ? ((tableW / 2) - (left - 80 + (isLeftPlayer ? 104 : 12)) - 22) : 0.0,
+                  _ownCardsOpacity == 0.0 ? ((tableH * 0.10) - (top - 31)) : 0.0,
+                  0.0,
+                ),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 300),
+                  opacity: _ownCardsOpacity,
+                  child: _buildOpponentCards(),
+                ),
+              ),
             ),
 
           // 4. Gold Crown on Top Left of Avatar
@@ -1147,28 +1179,9 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     // Current state values
-    String ownChips = '₹59,250';
-    String potAmount = '₹5,250';
-    String bannerText = '';
-
-    if (_stateIndex == 1) {
-      ownChips = '₹59,250';
-      potAmount = '₹5,250';
-    } else if (_stateIndex == 2) {
-      ownChips = '₹58,500';
-      potAmount = '₹6,000';
-      bannerText = 'Mehidi calls ₹750';
-    } else if (_stateIndex == 3) {
-      ownChips = '₹58,500';
-      potAmount = '₹6,000';
-    } else if (_stateIndex == 4) {
-      ownChips = '₹58,500';
-      potAmount = '₹7,500';
-    } else if (_stateIndex == 5) {
-      ownChips = '₹66,000';
-      potAmount = '₹7,500';
-      bannerText = 'Showdown! Mehidi Wins!';
-    }
+    String ownChips = _formatCurrency(_ownChipsVal);
+    String potAmount = _formatCurrency(_potVal);
+    String bannerText = _bannerText;
 
     bool isOwnTurn = _stateIndex == 1 || _stateIndex == 3 || _stateIndex == 4;
 
@@ -1468,70 +1481,149 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     ),
                   ),
 
-                  // 7. Fold Button (floating bottom-left)
-                  if (isOwnTurn)
+                  // 6.2 Own Player Bet Capsule (centered, in front of the avatar)
+                  if (_ownBetVal > 0)
                     Positioned(
-                      left: 55,
-                      bottom: 8,
-                      child: _buildActionButton(
-                        label: 'Fold',
-                        gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
-                        onPressed: () {
-                          setState(() {
-                            _stateIndex = 1;
-                          });
-                          _startTimer();
-                        },
+                      bottom: 120, // Positioned on the felt, above cards
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF4CAF50), width: 1.0),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset('assets/images/poker_chip.png', width: 12, height: 12),
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatCurrency(_ownBetVal),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
 
-                  // 8. Call / Check & Raise Buttons (floating bottom-right)
-                  if (isOwnTurn)
-                    Positioned(
-                      right: 55,
-                      bottom: 8,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_stateIndex == 1)
-                            _buildActionButton(
-                              label: 'Call',
-                              subtitle: '₹750',
-                              gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
-                              onPressed: _transitionToState2,
-                            ),
-                          if (_stateIndex == 3)
-                            _buildActionButton(
-                              label: 'Check',
-                              gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
-                              onPressed: _transitionToState4,
-                            ),
-                          if (_stateIndex == 4)
-                            _buildActionButton(
-                              label: 'Call',
-                              subtitle: '₹1,500',
-                              gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
-                              onPressed: _transitionToShowdown,
-                            ),
-                          const SizedBox(width: 8),
-                          _buildActionButton(
-                            label: 'Raise',
-                            subtitle: _stateIndex == 3 ? '₹${_raiseValue.toStringAsFixed(0)}' : null,
-                            icon: _stateIndex != 3 ? const Icon(Icons.keyboard_arrow_up, color: Colors.white, size: 16) : null,
-                            gradientColors: [const Color(0xFF7E57C2), const Color(0xFF5E35B1), const Color(0xFF311B92)],
-                            onPressed: () {
-                              if (_stateIndex == 3) {
-                                _transitionToState4();
-                              } else {
-                                setState(() {
-                                  _showRaiseSlider = !_showRaiseSlider;
-                                });
-                              }
-                            },
-                          ),
-                        ],
+                  // 7. Fold Button (sliding bottom-left, only active when it's own turn)
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    left: 55,
+                    bottom: isOwnTurn ? 8 : -60,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: isOwnTurn ? 1.0 : 0.0,
+                      child: IgnorePointer(
+                        ignoring: !isOwnTurn,
+                        child: _buildActionButton(
+                          label: 'Fold',
+                          gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
+                          onPressed: () {
+                            setState(() {
+                              _ownBetVal = 0;
+                              _bannerText = 'Mehidi Folded';
+                              _stateIndex = 1;
+                            });
+                            _resetCardAnimations();
+                            _startTimer();
+                          },
+                        ),
                       ),
                     ),
+                  ),
+
+                  // 8. Call / Check & Raise Buttons (sliding bottom-right, only active when it's own turn)
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    right: 55,
+                    bottom: isOwnTurn ? 8 : -60,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: isOwnTurn ? 1.0 : 0.0,
+                      child: IgnorePointer(
+                        ignoring: !isOwnTurn,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_stateIndex == 1)
+                              _buildActionButton(
+                                label: 'Call',
+                                subtitle: '₹750',
+                                gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
+                                onPressed: () {
+                                  setState(() {
+                                    _ownChipsVal = 58500;
+                                    _potVal = 6000;
+                                    _ownBetVal = 750;
+                                    _bannerText = 'Mehidi calls ₹750';
+                                  });
+                                  _transitionToState2();
+                                },
+                              ),
+                            if (_stateIndex == 3)
+                              _buildActionButton(
+                                label: 'Check',
+                                gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
+                                onPressed: () {
+                                  setState(() {
+                                    _bannerText = 'Mehidi checks';
+                                  });
+                                  _transitionToState4();
+                                },
+                              ),
+                            if (_stateIndex == 4)
+                              _buildActionButton(
+                                label: 'Call',
+                                subtitle: '₹1,500',
+                                gradientColors: [const Color(0xFFE53935), const Color(0xFFC62828), const Color(0xFF8E0000)],
+                                onPressed: () {
+                                  setState(() {
+                                    _ownChipsVal -= 1500;
+                                    _potVal += 1500;
+                                    _ownBetVal = 1500;
+                                    _bannerText = 'Mehidi calls ₹1,500';
+                                  });
+                                  _transitionToShowdown();
+                                },
+                              ),
+                            const SizedBox(width: 8),
+                            _buildActionButton(
+                              label: 'Raise',
+                              subtitle: _stateIndex == 3 ? '₹${_raiseValue.toStringAsFixed(0)}' : null,
+                              icon: _stateIndex != 3 ? const Icon(Icons.keyboard_arrow_up, color: Colors.white, size: 16) : null,
+                              gradientColors: [const Color(0xFF7E57C2), const Color(0xFF5E35B1), const Color(0xFF311B92)],
+                              onPressed: () {
+                                if (_stateIndex == 3) {
+                                  setState(() {
+                                    _ownChipsVal -= (_raiseValue - _ownBetVal);
+                                    _potVal += (_raiseValue - _ownBetVal);
+                                    _ownBetVal = _raiseValue;
+                                    _bannerText = 'Mehidi raises to ₹${_raiseValue.toStringAsFixed(0)}';
+                                  });
+                                  _transitionToState4();
+                                } else {
+                                  setState(() {
+                                    _showRaiseSlider = !_showRaiseSlider;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
 
                   // 9. Raise Vertical Slider Overlay (floating directly inside AspectRatio)
                   if (_showRaiseSlider && isOwnTurn)
