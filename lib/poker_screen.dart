@@ -40,6 +40,22 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
   bool _isBetAnimating = false;
   int _lastTickedSecond = 0;
 
+  // Animation states for flying cards
+  Alignment _card1Align = const Alignment(0, -0.3);
+  Alignment _card2Align = const Alignment(0, -0.3);
+  Alignment _card3Align = const Alignment(0, -0.3);
+  Alignment _card4Align = const Alignment(0, -0.3);
+  Alignment _card5Align = const Alignment(0, -0.3);
+  double _card1Opacity = 0.0;
+  double _card2Opacity = 0.0;
+  double _card3Opacity = 0.0;
+  double _card4Opacity = 0.0;
+  double _card5Opacity = 0.0;
+
+  Alignment _ownCardsAlign = const Alignment(0, -3.5);
+  double _ownCardsOpacity = 0.0;
+  double _dealerScale = 1.0;
+
   // Pulse animation for active glowing aura
   late AnimationController _glowController;
   late Animation<double> _glowAnimation;
@@ -62,11 +78,13 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
 
-    // Start shuffle sound and welcome turn notification
+    // Reset and start shuffle sound and welcome turn notification
+    _resetCardAnimations();
     Future.delayed(const Duration(milliseconds: 300), () {
       _playGameSound('card_shuffle.mp3');
     });
-    Future.delayed(const Duration(milliseconds: 1200), () {
+    _animateOwnCards();
+    Future.delayed(const Duration(milliseconds: 1600), () {
       _playGameSound('your_turn.mp3');
     });
 
@@ -95,6 +113,49 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
       });
     }).catchError((e) {
       debugPrint("Audio play error: $e");
+    });
+  }
+
+  void _resetCardAnimations() {
+    setState(() {
+      _card1Align = const Alignment(0, -0.3);
+      _card2Align = const Alignment(0, -0.3);
+      _card3Align = const Alignment(0, -0.3);
+      _card4Align = const Alignment(0, -0.3);
+      _card5Align = const Alignment(0, -0.3);
+      _card1Opacity = 0.0;
+      _card2Opacity = 0.0;
+      _card3Opacity = 0.0;
+      _card4Opacity = 0.0;
+      _card5Opacity = 0.0;
+      _ownCardsAlign = const Alignment(0, -3.5);
+      _ownCardsOpacity = 0.0;
+    });
+  }
+
+  void _animateOwnCards() {
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) {
+        setState(() {
+          _ownCardsAlign = const Alignment(0, 0.73);
+          _ownCardsOpacity = 1.0;
+        });
+        _nudgeDealer();
+        _playGameSound('card_deal.mp3');
+      }
+    });
+  }
+
+  void _nudgeDealer() {
+    setState(() {
+      _dealerScale = 1.08;
+    });
+    Future.delayed(const Duration(milliseconds: 150), () {
+      if (mounted) {
+        setState(() {
+          _dealerScale = 1.0;
+        });
+      }
     });
   }
 
@@ -179,8 +240,41 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
   }
 
   void _transitionToState3() {
-    _playGameSound('card_deal.mp3');
-    Future.delayed(const Duration(milliseconds: 800), () {
+    // Deal flop cards sequentially
+    Future.delayed(const Duration(milliseconds: 0), () {
+      if (mounted) {
+        setState(() {
+          _card1Align = const Alignment(-0.24, -0.05);
+          _card1Opacity = 1.0;
+        });
+        _nudgeDealer();
+        _playGameSound('card_deal.mp3');
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() {
+          _card2Align = const Alignment(-0.12, -0.05);
+          _card2Opacity = 1.0;
+        });
+        _nudgeDealer();
+        _playGameSound('card_deal.mp3');
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) {
+        setState(() {
+          _card3Align = const Alignment(0.0, -0.05);
+          _card3Opacity = 1.0;
+        });
+        _nudgeDealer();
+        _playGameSound('card_deal.mp3');
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
       _playGameSound('your_turn.mp3');
     });
 
@@ -209,7 +303,29 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
   }
 
   void _transitionToShowdown() {
-    _playGameSound('card_deal.mp3');
+    // Deal turn and river cards sequentially
+    Future.delayed(const Duration(milliseconds: 0), () {
+      if (mounted) {
+        setState(() {
+          _card4Align = const Alignment(0.12, -0.05);
+          _card4Opacity = 1.0;
+        });
+        _nudgeDealer();
+        _playGameSound('card_deal.mp3');
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() {
+          _card5Align = const Alignment(0.24, -0.05);
+          _card5Opacity = 1.0;
+        });
+        _nudgeDealer();
+        _playGameSound('card_deal.mp3');
+      }
+    });
+
     Future.delayed(const Duration(milliseconds: 1000), () {
       _playGameSound('winner.mp3');
       _playGameSound('chips_collect.mp3'); // Win reward experience
@@ -224,11 +340,13 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
     // Reset loop back to State 1 after 4.5 seconds
     Future.delayed(const Duration(milliseconds: 4500), () {
       if (mounted) {
+        _resetCardAnimations();
         setState(() {
           _stateIndex = 1;
         });
         _playGameSound('card_shuffle.mp3');
-        Future.delayed(const Duration(milliseconds: 1000), () {
+        _animateOwnCards();
+        Future.delayed(const Duration(milliseconds: 1600), () {
           _playGameSound('your_turn.mp3');
         });
         _startTimer();
@@ -302,6 +420,29 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFlyingCard({
+    required Alignment alignment,
+    required double opacity,
+    required String rank,
+    required CardSuit suit,
+  }) {
+    return AnimatedAlign(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      alignment: alignment,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 250),
+        opacity: opacity,
+        child: PokerCard(
+          rank: rank,
+          suit: suit,
+          width: 44,
+          height: 60,
         ),
       ),
     );
@@ -1088,9 +1229,14 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     alignment: Alignment.topCenter,
                     child: FractionallySizedBox(
                       heightFactor: 0.42,
-                      child: Image.asset(
-                        'assets/images/poker_dealer.png',
-                        fit: BoxFit.contain,
+                      child: AnimatedScale(
+                        scale: _dealerScale,
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeOutBack,
+                        child: Image.asset(
+                          'assets/images/poker_dealer.png',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -1155,7 +1301,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     ),
                   ),
 
-                  // 4. Five Card Placeholders on Table Center
+                  // 4. Five Card Placeholders on Table Center (Static Empty slots)
                   Positioned(
                     top: 146,
                     left: 0,
@@ -1163,47 +1309,49 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Card 1
-                        _stateIndex >= 3
-                            ? const AnimatedCardEntrance(
-                                delay: Duration(milliseconds: 0),
-                                child: PokerCard(rank: '6', suit: CardSuit.clubs, width: 44, height: 60),
-                              )
-                            : _buildEmptyCardPlaceholder(),
+                        _buildEmptyCardPlaceholder(),
                         const SizedBox(width: 4),
-                        // Card 2
-                        _stateIndex >= 3
-                            ? const AnimatedCardEntrance(
-                                delay: Duration(milliseconds: 150),
-                                child: PokerCard(rank: '4', suit: CardSuit.clubs, width: 44, height: 60),
-                              )
-                            : _buildEmptyCardPlaceholder(),
+                        _buildEmptyCardPlaceholder(),
                         const SizedBox(width: 4),
-                        // Card 3
-                        _stateIndex >= 3
-                            ? const AnimatedCardEntrance(
-                                delay: Duration(milliseconds: 300),
-                                child: PokerCard(rank: 'Q', suit: CardSuit.diamonds, width: 44, height: 60),
-                              )
-                            : _buildEmptyCardPlaceholder(),
+                        _buildEmptyCardPlaceholder(),
                         const SizedBox(width: 4),
-                        // Card 4 (Turn)
-                        _stateIndex >= 5
-                            ? const AnimatedCardEntrance(
-                                delay: Duration(milliseconds: 0),
-                                child: PokerCard(rank: 'J', suit: CardSuit.hearts, width: 44, height: 60),
-                              )
-                            : _buildEmptyCardPlaceholder(dotted: true),
+                        _buildEmptyCardPlaceholder(dotted: true),
                         const SizedBox(width: 4),
-                        // Card 5 (River)
-                        _stateIndex >= 5
-                            ? const AnimatedCardEntrance(
-                                delay: Duration(milliseconds: 150),
-                                child: PokerCard(rank: '10', suit: CardSuit.clubs, width: 44, height: 60),
-                              )
-                            : _buildEmptyCardPlaceholder(dotted: true),
+                        _buildEmptyCardPlaceholder(dotted: true),
                       ],
                     ),
+                  ),
+
+                  // 4.1 Flying Community Cards (rendered directly in the Stack)
+                  _buildFlyingCard(
+                    alignment: _card1Align,
+                    opacity: _card1Opacity,
+                    rank: '6',
+                    suit: CardSuit.clubs,
+                  ),
+                  _buildFlyingCard(
+                    alignment: _card2Align,
+                    opacity: _card2Opacity,
+                    rank: '4',
+                    suit: CardSuit.clubs,
+                  ),
+                  _buildFlyingCard(
+                    alignment: _card3Align,
+                    opacity: _card3Opacity,
+                    rank: 'Q',
+                    suit: CardSuit.diamonds,
+                  ),
+                  _buildFlyingCard(
+                    alignment: _card4Align,
+                    opacity: _card4Opacity,
+                    rank: 'J',
+                    suit: CardSuit.hearts,
+                  ),
+                  _buildFlyingCard(
+                    alignment: _card5Align,
+                    opacity: _card5Opacity,
+                    rank: '10',
+                    suit: CardSuit.clubs,
                   ),
 
                   // 5. Opponent Seats
@@ -1277,6 +1425,48 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
 
                   // 6. Own Player Section (Avatar, cards, timer, chips capsule, "15 days" bubble)
                   _buildOwnPlayerSection(ownChips, isOwnTurn),
+
+                  // 6.1 Own Player Hand Cards flying from dealer
+                  AnimatedAlign(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.easeOutBack,
+                    alignment: _ownCardsAlign,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 300),
+                      opacity: _ownCardsOpacity,
+                      child: SizedBox(
+                        width: 76,
+                        height: 64,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Positioned(
+                              left: 0,
+                              bottom: 0,
+                              child: PokerCard(
+                                rank: '2',
+                                suit: CardSuit.spades,
+                                width: 42,
+                                height: 58,
+                                rotation: -0.12,
+                              ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: PokerCard(
+                                rank: 'K',
+                                suit: CardSuit.diamonds,
+                                width: 42,
+                                height: 58,
+                                rotation: 0.12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
 
                   // 7. Fold Button (floating bottom-left)
                   if (isOwnTurn)
@@ -1613,44 +1803,6 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                 ),
               ),
 
-              // 2. Player Hand Cards (rotated and overlapping, in front of avatar)
-              Positioned(
-                bottom: 42,
-                child: AnimatedCardEntrance(
-                  delay: const Duration(milliseconds: 600), // Dealt slightly after round start
-                  child: SizedBox(
-                    width: 76,
-                    height: 64,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                          left: 0,
-                          bottom: 0,
-                          child: PokerCard(
-                            rank: '2',
-                            suit: CardSuit.spades,
-                            width: 42,
-                            height: 58,
-                            rotation: -0.12,
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: PokerCard(
-                            rank: 'K',
-                            suit: CardSuit.diamonds,
-                            width: 42,
-                            height: 58,
-                            rotation: 0.12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
 
               // 3. Own turn progress bar (horizontal orange timer bar below cards)
               if (isOwnTurn)
