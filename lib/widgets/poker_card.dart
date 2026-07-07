@@ -201,46 +201,43 @@ class PokerCard extends StatelessWidget {
       );
     }
 
-    // Number cards center layout
     int count = int.tryParse(rank) ?? 1;
+    if (count == 1) {
+      return Text(
+        suitIcon,
+        style: TextStyle(color: color, fontSize: height * 0.32),
+      );
+    }
+    
+    // Custom layouts for numbers
     if (count == 2) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.22)),
+          Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.20)),
           RotatedBox(
             quarterTurns: 2,
-            child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.22)),
+            child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.20)),
           ),
         ],
       );
-    } else if (count == 4) {
+    }
+    
+    if (count == 3) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
-              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              RotatedBox(
-                quarterTurns: 2,
-                child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
-              ),
-              RotatedBox(
-                quarterTurns: 2,
-                child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
-              ),
-            ],
+          Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
+          Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
+          RotatedBox(
+            quarterTurns: 2,
+            child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.16)),
           ),
         ],
       );
-    } else if (count == 6) {
+    }
+    
+    if (count == 4) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -254,21 +251,148 @@ class PokerCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.15)),
-              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.15)),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.15))),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.15))),
+            ],
+          ),
+        ],
+      );
+    }
+    
+    if (count == 5) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.14)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.14)),
+            ],
+          ),
+          Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.14)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.14))),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.14))),
+            ],
+          ),
+        ],
+      );
+    }
+    
+    if (count == 6) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.13)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.13)),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              RotatedBox(
-                quarterTurns: 2,
-                child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.15)),
-              ),
-              RotatedBox(
-                quarterTurns: 2,
-                child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.15)),
-              ),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.13)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.13)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.13))),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.13))),
+            ],
+          ),
+        ],
+      );
+    }
+
+    if (count == 7) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.12)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.12)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.12)),
+              const SizedBox(width: 8),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.12)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.12))),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.12))),
+            ],
+          ),
+        ],
+      );
+    }
+
+    if (count == 8) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.11)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.11)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.11)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.11)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.11))),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.11))),
+            ],
+          ),
+        ],
+      );
+    }
+
+    if (count == 9 || count == 10) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.10)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.10)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.10)),
+              Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.10)),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.10))),
+              RotatedBox(quarterTurns: 2, child: Text(suitIcon, style: TextStyle(color: color, fontSize: height * 0.10))),
             ],
           ),
         ],
@@ -279,9 +403,10 @@ class PokerCard extends StatelessWidget {
       suitIcon,
       style: TextStyle(
         color: color,
-        fontSize: height * 0.35,
+        fontSize: height * 0.30,
       ),
     );
+  }
   }
 }
 
