@@ -1241,6 +1241,40 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
     return '₹${val.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
 
+  Widget _buildDynamicChipStack(double bet) {
+    if (bet <= 0) return const SizedBox.shrink();
+    
+    int numChips = 1;
+    if (bet >= 30000) {
+      numChips = 4;
+    } else if (bet >= 10000) {
+      numChips = 3;
+    } else if (bet >= 4000) {
+      numChips = 2;
+    }
+
+    return SizedBox(
+      width: 14,
+      height: 12 + (numChips - 1) * 2.0,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
+        children: [
+          for (int i = 0; i < numChips; i++)
+            Positioned(
+              bottom: i * 2.0,
+              child: Image.asset(
+                'assets/images/poker_chip.png',
+                width: 11,
+                height: 11,
+                fit: BoxFit.contain,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyCardPlaceholder({bool dotted = false}) {
     return CustomPaint(
       painter: DashedRoundedRectPainter(
@@ -1576,7 +1610,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (!isFolded && player.bet > 0) ...[
-                          Image.asset('assets/images/poker_chip.png', width: 11, height: 11),
+                          _buildDynamicChipStack(player.bet),
                           const SizedBox(width: 3),
                         ],
                         Text(
@@ -2232,10 +2266,18 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Background image
-          const Image(
-            image: AssetImage('assets/images/poker_bg_full.png'),
-            fit: BoxFit.cover,
+          // 1. Clean Deep Casino Radial Gradient Background (no gold border)
+          Container(
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                colors: [
+                  Color(0xFF0F3E23), // Dark Forest Green
+                  Color(0xFF06150C), // Midnight Green
+                ],
+                center: Alignment.center,
+                radius: 1.2,
+              ),
+            ),
           ),
 
           // 2. Aspect Ratio Centered Table
@@ -2368,27 +2410,6 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                         ),
                       ),
 
-                      // 5 card outline slots on felt
-                      Positioned(
-                        top: 146,
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildEmptyCardPlaceholder(),
-                            const SizedBox(width: 4),
-                            _buildEmptyCardPlaceholder(),
-                            const SizedBox(width: 4),
-                            _buildEmptyCardPlaceholder(),
-                            const SizedBox(width: 4),
-                            _buildEmptyCardPlaceholder(dotted: true),
-                            const SizedBox(width: 4),
-                            _buildEmptyCardPlaceholder(dotted: true),
-                          ],
-                        ),
-                      ),
-
                       // Fly in community cards
                       if (_communityCards.isNotEmpty)
                         Positioned(
@@ -2515,7 +2536,7 @@ class _PokerScreenState extends State<PokerScreen> with TickerProviderStateMixin
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (!ownPlayer.isFolded && ownPlayer.bet > 0) ...[
-                                    Image.asset('assets/images/poker_chip.png', width: 12, height: 12),
+                                    _buildDynamicChipStack(ownPlayer.bet),
                                     const SizedBox(width: 4),
                                   ],
                                   Text(
