@@ -407,7 +407,6 @@ class PokerCard extends StatelessWidget {
       ),
     );
   }
-  }
 }
 
 class _CardBackPainter extends CustomPainter {
